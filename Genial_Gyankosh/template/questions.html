@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% block title %}
+Questions - Genial ज्ञानकोष
+{% endblock title %}
+{% block content %}
+<main class="o-page__content">
+    <header class="c-navbar">
+        <button class="c-sidebar-toggle u-mr-small">
+            <span class="c-sidebar-toggle__bar"></span>
+            <span class="c-sidebar-toggle__bar"></span>
+            <span class="c-sidebar-toggle__bar"></span>
+        </button><!-- // .c-sidebar-toggle -->
+
+        <div class="row col-md-12">
+            <h2 class="c-navbar__title col-md-9">{{ name }} here you can search regarding problem</h2>
+            <div class=" u-mb-medium col-md-3">
+                <a class="c-btn c-btn--success" href="{% url 'question' %}">
+                    <i class="fa fa-plus u-mr-xsmall"></i>Add New Question
+                </a>
+            </div>
+        </div>
+        <br>
+
+        <div class="c-field has-icon-left">
+                            <span class="c-field__icon">
+                                <i class="fa fa-search"></i>
+                            </span>
+
+            <label class="u-hidden-visually" for="navbar-search-small">Seach</label>
+            <input class="c-input" id="navbar-search-small" type="text" placeholder="Search" style="width:75%;">
+        </div>
+        <br/>
+        <br/>
+        <br/>
+    </header>
+<!--        <div class="row col-md-3">-->
+<!--            <button type="button" class="c-btn c-btn&#45;&#45;info" data-toggle="modal" data-target="#advance_search">-->
+<!--                Advance Search-->
+<!--            </button>-->
+<!--        </div>-->
+<!--        &lt;!&ndash; Modal &ndash;&gt;-->
+<!--        <div class="c-modal c-modal&#45;&#45;small modal fade" id="advance_search" tabindex="-1" role="dialog"-->
+<!--             aria-labelledby="modal8" data-backdrop="static">-->
+<!--            <div class="c-modal__dialog modal-dialog" role="document">-->
+<!--                <div class="c-modal__content">-->
+
+<!--                    <div class="c-modal__header">-->
+<!--                        <h3 class="c-modal__title">Advance Search</h3>-->
+
+<!--                        <span class="c-modal__close" data-dismiss="modal" aria-label="Close">-->
+<!--                                        <i class="fa fa-close"></i>-->
+<!--                                    </span>-->
+<!--                    </div>-->
+
+<!--                    <div class="c-modal__body">-->
+<!--                        <div class="c-field u-mb-medium col-md-12">-->
+<!--                            <label class="c-field__label" for="tech_id">select Technology</label>-->
+<!--                            &lt;!&ndash; Select2 jquery plugin is used &ndash;&gt;-->
+<!--                            <input type="text" list="dl1" class="c-input" id="tech_id" name="Tech" required autocomplete="off">-->
+<!--                            <input type="hidden" id="tech_id_send" name="TechID" value="0">-->
+<!--                            <datalist id="dl1">-->
+<!--                                {% for i in techlist %}-->
+<!--                                <option data-value="{{ i.TechID }}" value="{{ i.TechName }}"></option>-->
+<!--                                {% endfor %}-->
+<!--                            </datalist>-->
+
+
+<!--                        </div>-->
+
+
+<!--                        <div class="c-modal__footer u-justify-center">-->
+<!--                            <a class="c-btn c-btn&#45;&#45;success" href="#">Create Project</a>-->
+<!--                        </div>-->
+
+<!--                    </div>&lt;!&ndash; // .c-modal__content &ndash;&gt;-->
+<!--                </div>&lt;!&ndash; // .c-modal__dialog &ndash;&gt;-->
+<!--            </div>&lt;!&ndash; // .c-modal &ndash;&gt;-->
+<!--    </header>-->
+
+
+    <br>
+    <div class="col-md-12">
+        <div class="c-card u-mb-medium">
+            <div class="c-card__header c-card__header--transparent o-line">
+                <h5 class="c-card__title">Recently added questions</h5>
+            </div>
+            <div id="que_list">
+                {% for i in questions %}
+                <a href="{% url 'question' i.quoid %}">
+                    <div class="c-todo u-border-top-zero">
+                        <input class="c-todo__input" id="todo1" type="hidden" name="exampe-list">
+                        <label class="c-todo__label">
+                            {{ i.question }}
+                        </label>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+
+        </div>
+    </div>
+</main>
+
+{% endblock content %}
+
+{% block footer_scripts %}
+{{ block.super }}
+
+<script>
+    $( document ).ready(function() {
+    var xx = document.getElementById('db_link_b_doc');
+    var me = document.getElementById('q_link_b_doc');
+    xx.classList.remove("is-active");
+    me.classList.add("is-active");
+});
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+
+<script>
+    $("#navbar-search-small").on("input",function () {
+      var url = {% url 'ajax_load_question' %};
+      var Tag = document.getElementById("navbar-search-small").value;
+<!--      document.getElementById("tech_id_send").value = TechId;-->
+      $.ajax({
+        url: url,
+        type:"POST",
+        data: {
+        csrfmiddlewaretoken: '{{ csrf_token }}',
+          tag: Tag
+        },
+        success: function (data) {
+            console.log(data);
+            $('#que_list').empty();
+            var a = data.quelist;
+            a.forEach(function (xx) {
+            var temp = '<a href="{% url 'question' '0' %}">';
+            temp = temp.replace(0,xx.ProblemID);
+            console.log(temp);
+              $("#que_list").append(
+                temp
+                +'<div class="c-todo u-border-top-zero" href="">'
+                    +'<input class="c-todo__input" id="todo1" type="hidden" name="exampe-list">'
+                    +'<label class="c-todo__label">'
+                        + xx.ProblemTitle
+                    +'</label>'
+                +'</div>'
+                +'</a>'
+              );
+
+            });
+        }
+      });
+    });
+
+
+
+
+
+
+
+
+
+</script>
+
+{% endblock %}

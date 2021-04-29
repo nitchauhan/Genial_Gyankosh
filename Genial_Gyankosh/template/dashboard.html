@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}
+    Dashboard - Genial ज्ञानकोष
+{% endblock title %}
+{% block content %}
+<main class="o-page__content">
+    <header class="c-navbar">
+        <button class="c-sidebar-toggle u-mr-small">
+            <span class="c-sidebar-toggle__bar"></span>
+            <span class="c-sidebar-toggle__bar"></span>
+            <span class="c-sidebar-toggle__bar"></span>
+        </button><!-- // .c-sidebar-toggle -->
+
+        <h2 class="c-navbar__title u-mr-auto">Welcone {{ name }}</h2>
+
+
+    </header>
+
+    <div class="c-toolbar u-justify-center u-mb-small">
+        <div class="col-sm-6 col-lg-3">
+            <div class="c-state c-state--info">
+                <h3 class="c-state__title">Total Questions </h3>
+                <h4 class="c-state__number">{{ total_count }}</h4>
+            </div><!-- // c-state -->
+        </div>
+
+        <div class="col-sm-6 col-lg-3">
+            <div class="c-state c-state--success">
+                <h3 class="c-state__title">Solved Questions</h3>
+                <h4 class="c-state__number">{{ solved_count }}</h4>
+            </div><!-- // c-state -->
+        </div>
+    </div><!-- // .c-toolbar -->
+    <div class="col-md-12">
+        <div class="c-card u-mb-medium">
+            <div class="c-card__header c-card__header--transparent o-line">
+                <h5 class="c-card__title">Recently added questions</h5>
+            </div>
+
+            <div id="que_list">
+                {% for i in questions %}
+                <a href="{% url 'question' i.quoid %}">
+                    <div class="c-todo u-border-top-zero">
+                        <input class="c-todo__input" id="todo1" type="hidden" name="exampe-list">
+                        <label class="c-todo__label">
+                            {{ i.question }}
+                        </label>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+
+
+        </div>
+    </div>
+    </div><!-- // .row -->
+
+
+</main><!-- // .o-page__content -->
+{% endblock content %}

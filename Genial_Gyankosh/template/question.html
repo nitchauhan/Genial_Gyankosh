@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock title %}
+{% block content %}
+<main class="o-page__content">
+    <header class="c-navbar">
+        <button class="c-sidebar-toggle u-mr-small">
+            <span class="c-sidebar-toggle__bar"></span>
+            <span class="c-sidebar-toggle__bar"></span>
+            <span class="c-sidebar-toggle__bar"></span>
+        </button><!-- // .c-sidebar-toggle -->
+
+        <h2 class="c-navbar__title u-mr-auto">{{ request.session.fullname }}, here you can ask question & provide
+            solution.</h2>
+
+
+    </header>
+    <br/>
+    <div class="col-md-12">
+        <div class="c-card u-mb-medium">
+            <div class="c-card__header c-card__header--transparent o-line">
+                <h5 class="c-card__title">Tell as what bring you here !!</h5>
+            </div>
+
+            <form class="c-card__body" id="quo_form" data-cities-url="{% url 'ajax_load_controller' %}" method="POST"
+                  action="{% url 'question' %}">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="c-field u-mb-medium col-md-3">
+                        <label class="c-field__label" for="tech_id">select Technology</label>
+                        <!-- Select2 jquery plugin is used -->
+                        <input type="text" list="dl1" class="c-input" id="tech_id" name="Tech" required>
+                        <input type="hidden" id="tech_id_send" name="TechID" value="0">
+                        <datalist id="dl1">
+                            {% for i in techlist %}
+                            <option data-value="{{ i.TechID }}" value="{{ i.TechName }}"></option>
+                            {% endfor %}
+                        </datalist>
+
+
+                    </div>
+
+
+                    <div class="c-field u-mb-medium col-md-3">
+                        <label class="c-field__label" for="tech_id">select Control</label>
+                        <!-- Select2 jquery plugin is used -->
+                        <input type="text" list="dl2" class="c-input" id="control_id" name="Control" required
+                               disabled autocomplete="off">
+                        <input type="hidden" id="control_id_send" name="ControlID" value="0">
+                        <datalist id="dl2">
+                            <option>hi</option>
+                        </datalist>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 col-md-12 u-mb-small">
+                        <div class="c-field">
+                            <label class="c-field__label" for="input1">Title</label>
+                            <small class="c-field__message">
+                                Be specific and imagine you’re asking a question to another person
+                            </small>
+                            <input class="c-input" id="input1" type="text" placeholder="Title" name="ProblemTitle"
+                                   required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12 u-mb-medium">
+                        <div class="c-field">
+                            <label class="c-field__label" for="textarea2">Body</label>
+                            <small class="c-field__message">
+                                Include all the information
+                            </small>
+                            <textarea class="c-input" id="textarea2" required name="ProblemDesc"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3 u-mb-medium">
+                        <button class="c-btn c-btn--info" type="submit">Post Your Question</button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div><!-- // .row -->
+
+
+</main><!-- // .o-page__content -->
+{% endblock content %}
+
+{% block footer_scripts %}
+{{ block.super }}
+
+<script>
+    $( document ).ready(function() {
+    var xx = document.getElementById('db_link_b_doc');
+    var me = document.getElementById('q_link_b_doc');
+    xx.classList.remove("is-active");
+    me.classList.add("is-active");
+});
+
+</script>
+
+<script>
+    function getID_datalist(dl,tb)
+    {
+        var shownVal = document.getElementById(tb).value;
+        var ss = $(dl).find('option[value="'+shownVal+'"]').attr('data-value');
+        return ss;
+    }
+
+</script>
+
+
+<script>
+$("#tech_id").change(function () {
+      var url = $("#quo_form").attr("data-cities-url");
+      var TechId = getID_datalist("#dl1","tech_id");
+      document.getElementById("tech_id_send").value = TechId;
+      $.ajax({
+        url: url,
+        type:"POST",
+        data: {
+        csrfmiddlewaretoken: '{{ csrf_token }}',
+          TechID: TechId
+        },
+        success: function (data) {
+            $('#dl2 option').remove();
+            var a = data.controllist;
+            a.forEach(function (xx) {
+              $("#dl2").append("<option value='" + xx.ControlName + "' data-value='"+ xx.ControlID +"'>");
+            });
+            document.getElementById("control_id").disabled = false;
+
+        }
+      });
+    });
+
+$("#control_id").change(function () {
+      var url = $("#quo_form").attr("data-cities-url");
+      var ControlId = getID_datalist("#dl2","control_id");
+      document.getElementById("control_id_send").value = ControlId;
+
+    });
+
+
+
+
+
+
+
+
+
+</script>
+{% endblock %}

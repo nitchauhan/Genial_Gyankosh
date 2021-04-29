@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+{% block title %}
+{{ quedtl.ProblemTitle }}
+{% endblock %}
+{% block content %}
+<main class="o-page__content">
+    <header class="c-navbar">
+        <button class="c-sidebar-toggle u-mr-small">
+            <span class="c-sidebar-toggle__bar"></span>
+            <span class="c-sidebar-toggle__bar"></span>
+            <span class="c-sidebar-toggle__bar"></span>
+        </button><!-- // .c-sidebar-toggle -->
+
+        <h2 class="c-navbar__title u-mr-auto">{{ request.session.fullname }}, here you can give & get solution.</h2>
+
+
+    </header>
+    <br/>
+    <div class="col-md-12">
+        <div class="c-card u-mb-medium">
+            <div class="c-card__header c-card__header--transparent">
+                <div class="row">
+                    <h5 class="c-card__title col-md-12" style="font-size: 2.125rem;">
+                        {{ quedtl.ProblemTitle }}
+                        <br/>
+                        <span class="c-badge c-badge--info"> {{ quedtl.TechName }} </span>
+                        <span class="c-badge c-badge--info"> {{ quedtl.ControlName }} </span>
+                    </h5>
+                </div>
+                <br/>
+                <div class="row">
+                    <small class="u-block u-text-mute col-md-9 ">Asked on : {{ quedtl.CreatedDate }}</small>
+                    <small class="u-block u-text-mute col-md-3">Asked By : {{ quedtl.UserName }}</small>
+                </div>
+            </div>
+
+            <div class="c-card__body">
+                <div class="row">
+                    <div class="c-field u-mb-medium col-md-12">
+                        <p class="card__header" style="font-size: 1.125rem;">
+                            {{ quedtl.ProblemDesc}}
+                        </p>
+                    </div>
+
+                </div>
+
+
+            </div><!-- // .row -->
+        </div>
+
+
+        {% for i in anslist %}
+        <div class="c-card u-mb-medium">
+            <div class="c-card__header c-card__header--transparent">
+                <div class="row">
+                    <div class="col-md-6">
+                        {% if i.IsVerified == False and quedtl.UserID_QA == request.session.userid %}
+                        <a href="{% url 'verifyans' i.SolutionID  quedtl.ProblemID %}" ><span class="c-badge c-badge--secondary"> Mark this answer as verified <i class="fa fa-check-circle"
+                                                                            style="color:blue"></i> </span>
+                        </a>
+                        {% endif %}
+
+                        {% if i.IsVerified == True %}
+                        <span class="c-badge c-badge--success"> Verified <i class="fa fa-check-circle"
+                                                                            style="color:blue"></i> </span>
+                        {% endif %}
+                    </div>
+                </div>
+                <br/>
+                <div class="row">
+                    <small class="u-block u-text-mute col-md-9">Answered on : {{ i.CreatedDate }}</small>
+                    <small class="u-block u-text-mute col-md-3">Answered By : {{ i.UserName }}</small>
+                </div>
+
+            </div>
+
+            <div class="c-card__body">
+                <div class="card__header" style="font-size: 1.125rem;">
+                    {{ i.SolutionDesc }}
+                </div>
+            </div><!-- // .row -->
+        </div>
+        {% endfor %}
+
+        <div class="c-card u-mb-medium">
+            <div class="c-card__header c-card__header--transparent">
+                <h5 class="c-card__title col-md-12" style="font-size: 1.125rem;">
+                    Your Answer
+                </h5>
+            </div>
+            <form class="c-card__body" id="ans_form" method="POST" action="{% url 'ins_answer' %}">
+                {% csrf_token %}
+                <input type="hidden" value="{{ quedtl.ProblemID }}" name="ProblemID">
+                <div class="row">
+                    <div class="col-md-12 u-mb-medium">
+                        <div class="c-field">
+                            <label class="c-field__label" for="textarea2">Answer</label>
+                            <textarea class="c-input" id="textarea2" required name="SolutionDesc"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3 u-mb-medium">
+                        <button class="c-btn c-btn--info" type="submit">Submit your answer</button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+
+
+    </div>
+
+</main><!-- // .o-page__content -->
+{% endblock content %}
+
+{% block footer_scripts %}
+{{ block.super }}
+
+<script>
+    $( document ).ready(function() {
+    var xx = document.getElementById('db_link_b_doc');
+    var me = document.getElementById('q_link_b_doc');
+    xx.classList.remove("is-active");
+    me.classList.add("is-active");
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+
+<script>
+    function getID_datalist(dl,tb)
+    {
+        var shownVal = document.getElementById(tb).value;
+        var ss = $(dl).find('option[value="'+shownVal+'"]').attr('data-value');
+        return ss;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+
+
+<script>
+$("#tech_id").change(function () {
+      var url = $("#quo_form").attr("data-cities-url");
+      var TechId = getID_datalist("#dl1","tech_id");
+      document.getElementById("tech_id_send").value = TechId;
+      $.ajax({
+        url: url,
+        type:"POST",
+        data: {
+        csrfmiddlewaretoken: '{{ csrf_token }}',
+          TechID: TechId
+        },
+        success: function (data) {
+            $('#dl2 option').remove();
+            var a = data.controllist;
+            a.forEach(function (xx) {
+              $("#dl2").append("<option value='" + xx.ControlName + "' data-value='"+ xx.ControlID +"'>");
+            });
+            document.getElementById("control_id").disabled = false;
+
+        }
+      });
+    });
+
+$("#control_id").change(function () {
+      var url = $("#quo_form").attr("data-cities-url");
+      var ControlId = getID_datalist("#dl2","control_id");
+      document.getElementById("control_id_send").value = ControlId;
+
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+{% endblock %}
